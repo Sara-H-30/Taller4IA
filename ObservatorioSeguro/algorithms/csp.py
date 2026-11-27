@@ -132,8 +132,32 @@ def select_unassigned_variable(csp, assignment, domains):
     - csp.neighbors[x] contiene sus vecinos; csp.variables conserva el orden
       original para los desempates.
     """
-    # TODO: Add your code here
-    raise NotImplementedError
+    mejor_variable = None
+    menor_cantidad = float("inf")
+    mayor_grado = -1
+
+    for variable in csp.variables:
+        if variable in assignment:
+            continue
+
+        cantidad = 0
+        for valor in domains[variable]:
+            if csp.consistent(variable, valor, assignment):
+                cantidad += 1
+
+        grado = 0
+        for vecino in csp.neighbors[variable]:
+            if vecino not in assignment:
+                grado += 1
+
+        if cantidad < menor_cantidad or (
+            cantidad == menor_cantidad and grado > mayor_grado
+        ):
+            mejor_variable = variable
+            menor_cantidad = cantidad
+            mayor_grado = grado
+
+    return mejor_variable
     # FIN DEL BLOQUE DEL ESTUDIANTE
 
 
@@ -150,6 +174,26 @@ def order_domain_values(csp, variable, assignment, domains):
     - csp.compatible(variable, valor, vecino, valor_vecino) comprueba cada par
       sin modificar los dominios.
     """
-    # TODO: Add your code here
-    raise NotImplementedError
+    candidatos = []
+
+    for valor in domains[variable]:
+        if not csp.consistent(variable, valor, assignment):
+            continue
+
+        descartados = 0
+
+        for vecino in csp.neighbors[variable]:
+            if vecino in assignment:
+                continue
+
+            for valor_vecino in domains[vecino]:
+                if csp.consistent(vecino, valor_vecino, assignment):
+                    if not csp.compatible(variable, valor, vecino, valor_vecino):
+                        descartados += 1
+
+        candidatos.append((valor, descartados))
+
+    candidatos.sort(key=lambda candidato: candidato[1])
+
+    return [valor for valor, descartados in candidatos]
     # FIN DEL BLOQUE DEL ESTUDIANTE
